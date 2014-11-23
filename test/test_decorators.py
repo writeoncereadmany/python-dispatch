@@ -1,5 +1,6 @@
 import unittest
 from decorators import case, default, _
+from duckface import Duckface
 
 class DecoratorsTest(unittest.TestCase):
 
@@ -58,6 +59,23 @@ class DecoratorsTest(unittest.TestCase):
       self.assertEqual(a.hey(35), "Boo")
       self.assertEqual(b.hey(42), "Woo")
       self.assertEqual(b.hey(35), "Bah")
+
+   def test_can_dispatch_on_ducktypes(self):
+      iterable = Duckface("__iter__")
+
+      @case(iterable)
+      def flatten(xs): 
+        flattened = []
+        for x in xs:
+          flattened.extend(flatten(x))
+        return flattened
+
+      @default
+      def flatten(x): return [x]
+
+      self.assertEqual(flatten(flatten([1, 2, (3, 4), 5, ([range(6, 9)], 9), 0])), 
+                       [1, 2, 3, 4, 5, 6, 7, 8, 9, 0])
+
 
    def test_class_methods_work_and_are_scoped_properly(self):
       class A:
